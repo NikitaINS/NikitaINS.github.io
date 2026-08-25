@@ -21,7 +21,6 @@ import {
   GitBranch,
   Activity,
   Lock,
-  Globe,
   Clock,
   MapPin,
   Award,
@@ -29,6 +28,8 @@ import {
   Menu,
   X,
   ArrowUp,
+  Rocket,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,7 @@ const NAV_ITEMS = [
   { label: "Навыки", href: "#skills" },
   { label: "Образование", href: "#education" },
   { label: "Контакт", href: "#contact" },
+  { label: "Кейсы", href: "#projects" },
 ];
 
 const EXPERIENCES = [
@@ -61,10 +63,11 @@ const EXPERIENCES = [
     company: "Центральный банк РФ",
     companyUrl: "https://www.cbr.ru",
     description:
-      "Поддержка и развитие инфраструктурных сервисов Банка России. Работа с мониторингом и observability-стеком.",
+      "Поддержка и развитие инфраструктурных сервисов Банка России. Работа с мониторингом, observability-стеком и сетевой инфраструктурой.",
     highlights: [
       "Prometheus, Zabbix, VictoriaMetrics, SMOS",
       "Elasticsearch (ELK), Kafka и др.",
+      "Сетевая инфраструктура: маршрутизация, коммутация, VLAN",
       "Управление задачами в Jira, документация в Confluence",
       "Процессно-ориентированные системы (Camunda)",
     ],
@@ -76,7 +79,7 @@ const EXPERIENCES = [
     period: "2022 — 2024",
     duration: "1 год 10 мес",
     title: "Системный администратор / DevOps",
-    company: "ООО «НВК-Онлайн»",
+    company: "ГБУ НВК \u00abСаха\u00bb",
     companyUrl: "https://nvk-online.ru",
     description:
       "Комплексное администрирование ИТ-инфраструктуры компании, внедрение DevOps-практик и автоматизация процессов.",
@@ -88,7 +91,7 @@ const EXPERIENCES = [
       "Сетевая безопасность: VPN (L2TP, IPSec, WireGuard), VLAN",
       "Автоматизация: скрипты (cron, bash, python), развёртывание IP-телефонии (PBX)",
       "AI-ассистент на Python для внутренних задач",
-      "Маркетинг: SEO, контент-маркетинг, аналитика, разработка стратегии продвижения",
+      "Управление направлением 1 и 2 линии поддержки, закупки ИТ-оборудования, планирование работы ИТ отдела.",
     ],
     color: "var(--pastel-rose)",
     colorLight: "var(--pastel-rose-light)",
@@ -98,7 +101,7 @@ const EXPERIENCES = [
     period: "2021 — 2022",
     duration: "1 год 6 мес",
     title: "Системный администратор",
-    company: "ООО «НВК-Онлайн»",
+    company: "ГБУ НВК \u00abСаха\u00bb",
     companyUrl: "https://nvk-online.ru",
     description:
       "Администрирование ИТ-инфраструктуры: серверы, сети, рабочие станции.",
@@ -164,31 +167,73 @@ const SKILL_GROUPS = [
 const EDUCATION = [
   {
     year: "2025",
-    title: "Специалист по информационной безопасности",
-    subtitle: "Профессиональная переподготовка",
+    title: "Защита сетевой инфраструктуры на основе продуктов С-Терра",
+    subtitle: "С-Терра СиЭсПи",
     color: "var(--pastel-sage)",
     colorLight: "var(--pastel-sage-light)",
   },
   {
     year: "2025",
-    title: "VBA для MS Office Excel",
-    subtitle: '«Московский учебный центр»',
+    title: "Введение в VBA. Начало программирования в среде MS Office Excel",
+    subtitle: "АНО ДПО \u00abУчебный центр РРС\u00bb",
     color: "var(--pastel-rose)",
     colorLight: "var(--pastel-rose-light)",
   },
   {
     year: "2024",
-    title: "Сертификат — оценка 3.9",
-    subtitle: "Профессиональный экзамен",
+    title: "Администрирование АПКШ Континент версии 3.9",
+    subtitle: "АНО ДПО ЦПК",
     color: "var(--pastel-lavender)",
     colorLight: "var(--pastel-lavender-light)",
   },
   {
     year: "2021",
-    title: "Среднее профессиональное образование",
-    subtitle: "Техническое образование",
+    title: "Бакалавр, Инфокоммуникационные технологии и системы связи",
+    subtitle: "СВФУ им. М.К. Аммосова, Институт математики и информатики",
     color: "var(--pastel-warm)",
     colorLight: "#f5ede3",
+  },
+];
+
+const PROJECTS = [
+  {
+    title: "Observability в телевещании",
+    description:
+      "Построил observability с нуля в телевещании: Zabbix + Grafana, тепловые карты, кастомные UserParameter на Bash/PowerShell. В госсекторе \u2014 единая панель для ИТ и бизнес-процессов.",
+    color: "var(--pastel-sage)",
+    colorLight: "var(--pastel-sage-light)",
+  },
+  {
+    title: "Виртуализация и контейнеризация",
+    description:
+      "Внедрил виртуализацию (Proxmox VE, VMware) и контейнеризацию (Docker, LXC) \u2014 кластеризация, резервное копирование.",
+    color: "var(--pastel-rose)",
+    colorLight: "var(--pastel-rose-light)",
+  },
+  {
+    title: "Импортозамещение инфраструктуры",
+    description:
+      "Реализовал импортозамещение: перевёл инфраструктуру на Astra Linux/РЕД ОС, заменил МСЭ на отечественные (Континент, Vipnet, S-Terra) с криптозащитой (СКЗИ).",
+    color: "var(--pastel-lavender)",
+    colorLight: "var(--pastel-lavender-light)",
+  },
+  {
+    title: "\u00abДети Азии\u00bb \u2014 международные спортивные игры",
+    description:
+      "Обеспечил бесперебойное интернет-вещание на международных спортивных играх \u00abДети Азии\u00bb как главный инженер \u2014 управлял командой и инфраструктурой в сжатые сроки.",
+    color: "var(--pastel-warm)",
+    colorLight: "#f5ede3",
+  },
+  {
+    title: "Детский телеканал \u00abТооку\u00bb",
+    description:
+      "Запустил с нуля детский телеканал \u00abТооку\u00bb: обеспечил полный технический контур \u2014 от рабочих станций до интернет-вещания, включая мониторинг, резервирование и отказоустойчивость.",
+    links: [
+      { label: "tooku.ru", url: "https://tooku.ru/" },
+      { label: "nvk-online.ru", url: "https://nvk-online.ru" },
+    ],
+    color: "#b5c5d4",
+    colorLight: "#dfe9f0",
   },
 ];
 
@@ -323,10 +368,12 @@ function HeroSection() {
         <div
           className="absolute top-20 -left-32 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl"
           style={{ background: "var(--pastel-sage-light)" }}
-        />\n        <div
+        />
+        <div
           className="absolute bottom-20 -right-32 w-[450px] h-[450px] rounded-full opacity-25 blur-3xl"
           style={{ background: "var(--pastel-rose-light)" }}
-        />\n        <div
+        />
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
           style={{ background: "var(--pastel-lavender-light)" }}
         />
@@ -360,24 +407,15 @@ function HeroSection() {
             }}
           >
             <Terminal size={14} />
-            <span>SRE / DevOps Engineer</span>
+            <span>SRE / Observability / Network Engineer</span>
           </motion.div>
 
           <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-            Иванов Никита{"\n"}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, var(--pastel-sage), var(--pastel-lavender), var(--pastel-rose))",
-              }}
-            >
-              Станиславович
-            </span>
+            Иванов Никита{"\n"}Станиславович
           </h1>
 
           <p className="text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-4" style={{ color: "var(--muted-foreground)" }}>
-            SRE / DevOps-инженер с 5+ лет опыта. Надёжность, автоматизация и
+            SRE / Observability / Network-инженер с 5+ лет опыта. Надёжность, автоматизация и
             непрерывная доставка — мои основные приоритеты.
           </p>
 
@@ -397,14 +435,6 @@ function HeroSection() {
             >
               <MapPin size={12} className="mr-1.5" />
               Удалённо / Релокация
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="text-xs px-3 py-1.5 rounded-full"
-              style={{ background: "var(--pastel-cream)", color: "var(--muted-foreground)" }}
-            >
-              <Globe size={12} className="mr-1.5" />
-              Английский A2
             </Badge>
           </div>
 
@@ -708,7 +738,7 @@ function SkillsSection() {
                         className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors duration-200"
                         style={{
                           background: group.colorLight,
-                          color: group.color,
+                          color: "#1a1a1a",
                         }}
                       >
                         {skill}
@@ -884,7 +914,7 @@ function ContactSection() {
                     <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>
                       Позиция
                     </p>
-                    <p className="font-semibold">SRE / DevOps-инженер</p>
+                    <p className="font-semibold">SRE / Observability / Network-инженер</p>
                   </div>
                 </div>
 
@@ -920,6 +950,92 @@ function ContactSection() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  PROJECTS                                                           */
+/* ------------------------------------------------------------------ */
+
+function ProjectsSection() {
+  return (
+    <section
+      id="projects"
+      className="py-24 sm:py-32"
+      style={{ background: "var(--pastel-cream)" }}
+    >
+      <div className="mx-auto max-w-6xl px-6">
+        <FadeInSection>
+          <SectionLabel text="Кейсы" />
+          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+            Ключевые проекты
+          </h2>
+          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+            Проекты, которыми особенно горжусь
+          </p>
+        </FadeInSection>
+
+        <div className="grid md:grid-cols-2 gap-5">
+          {PROJECTS.map((project, i) => (
+            <FadeInSection key={i} delay={i * 0.1}>
+              <Card
+                className={`h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden ${
+                  i === PROJECTS.length - 1 && PROJECTS.length % 2 === 1 ? "md:col-span-2" : ""
+                }`}
+              >
+                <div className="flex h-full">
+                  <div
+                    className="w-1.5 shrink-0"
+                    style={{ background: project.color }}
+                  />
+                  <CardContent className="p-6 flex-1">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110"
+                        style={{
+                          background: project.colorLight,
+                          color: project.color,
+                        }}
+                      >
+                        <Rocket size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-[family-name:var(--font-heading)] font-semibold">
+                          {project.title}
+                        </h3>
+                        <p
+                          className="text-sm mt-2 leading-relaxed"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
+                          {project.description}
+                        </p>
+                        {"links" in project && (
+                          <div className="flex gap-3 mt-3">
+                            {project.links.map((link, li) => (
+                              <a
+                                key={li}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs font-medium hover:underline transition-colors"
+                                style={{ color: project.color }}
+                              >
+                                <ExternalLink size={12} />
+                                {link.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </div>
+              </Card>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  FOOTER                                                             */
 /* ------------------------------------------------------------------ */
 
@@ -934,7 +1050,7 @@ function Footer() {
           © {new Date().getFullYear()} Иванов Никита Станиславович
         </p>
         <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-          SRE / DevOps-инженер
+          SRE / Observability / Network-инженер
         </p>
       </div>
     </footer>
@@ -1007,6 +1123,7 @@ export default function Home() {
           <SkillsSection />
           <EducationSection />
           <ContactSection />
+          <ProjectsSection />
         </main>
         <Footer />
         <ScrollToTop />
