@@ -165,7 +165,7 @@ const ru: Translations = {
     {
       period: "2022 — 2024",
       duration: "1 год 10 мес",
-      title: "Системный администратор / DevOps",
+      title: "Системный администратор / Observability / Network Engineer",
       company: "ГБУ НВК \u00abСаха\u00bb",
       description:
         "Комплексное администрирование ИТ-инфраструктуры компании, внедрение DevOps-практик и автоматизация процессов.",
@@ -352,7 +352,7 @@ const en: Translations = {
     {
       period: "2022 — 2024",
       duration: "1 yr 10 mo",
-      title: "System Administrator / DevOps",
+      title: "System Administrator / Observability / Network Engineer",
       company: "GBU NVK \u00abSakha\u00bb",
       description:
         "Comprehensive IT infrastructure administration, DevOps practices implementation and process automation.",
