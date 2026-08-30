@@ -1,0 +1,749 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useRef, useState } from "react";
+     4→import { motion, useInView, AnimatePresence } from "framer-motion";
+     5→import {
+     6→  Monitor,
+     7→  Server,
+     8→  Shield,
+     9→  Code,
+    10→  Cloud,
+    11→  Settings,
+    12→  Phone,
+    13→  Mail,
+    14→  Briefcase,
+    15→  ChevronDown,
+    16→  Terminal,
+    17→  Container,
+    18→  GitBranch,
+    19→  Activity,
+    20→  Clock,
+    21→  MapPin,
+    22→  Award,
+    23→  FileText,
+    24→  Menu,
+    25→  X,
+    26→  ArrowUp,
+    27→  Rocket,
+    28→  ExternalLink,
+    29→  Languages,
+    30→} from "lucide-react";
+    31→import { Button } from "@/components/ui/button";
+    32→import { Badge } from "@/components/ui/badge";
+    33→import { Card, CardContent } from "@/components/ui/card";
+    34→import { Separator } from "@/components/ui/separator";
+    35→import { TooltipProvider } from "@/components/ui/tooltip";
+    36→import { LangProvider, useLang } from "@/lib/useLang";
+    37→import {
+    38→  experienceMeta,
+    39→  skillGroupMeta,
+    40→  educationMeta,
+    41→  projectMeta,
+    42→  experienceUrls,
+    43→} from "@/lib/i18n";
+    44→
+    45→/* ------------------------------------------------------------------ */
+    46→/*  ICON MAP (for dynamic icon rendering)                              */
+    47→/* ------------------------------------------------------------------ */
+    48→const ICON_MAP = {
+    49→  Server,
+    50→  Cloud,
+    51→  Settings,
+    52→  Monitor,
+    53→  Container,
+    54→  GitBranch,
+    55→  Activity,
+    56→  Shield,
+    57→  Code,
+    58→} as const;
+    59→
+    60→/* ------------------------------------------------------------------ */
+    61→/*  ANIMATED SECTION WRAPPER                                          */
+    62→/* ------------------------------------------------------------------ */
+    63→
+    64→function FadeInSection({
+    65→  children,
+    66→  className = "",
+    67→  delay = 0,
+    68→}: {
+    69→  children: React.ReactNode;
+    70→  className?: string;
+    71→  delay?: number;
+    72→}) {
+    73→  const ref = useRef<HTMLDivElement>(null);
+    74→  const isInView = useInView(ref, { once: true, margin: "-60px" });
+    75→  return (
+    76→    <motion.div
+    77→      ref={ref}
+    78→      initial={{ opacity: 0, y: 40 }}
+    79→      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+    80→      transition={{ duration: 0.6, ease: "easeOut", delay }}
+    81→      className={className}
+    82→    >
+    83→      {children}
+    84→    </motion.div>
+    85→  );
+    86→}
+    87→
+    88→/* ------------------------------------------------------------------ */
+    89→/*  SECTION LABEL                                                      */
+    90→/* ------------------------------------------------------------------ */
+    91→
+    92→function SectionLabel({ text }: { text: string }) {
+    93→  return (
+    94→    <span
+    95→      className="inline-block text-xs font-semibold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-full"
+    96→      style={{
+    97→        background: "var(--pastel-sage-light)",
+    98→        color: "#4a6b52",
+    99→      }}
+   100→    >
+   101→      {text}
+   102→    </span>
+   103→  );
+   104→}
+   105→
+   106→/* ------------------------------------------------------------------ */
+   107→/*  NAVIGATION                                                         */
+   108→/* ------------------------------------------------------------------ */
+   109→
+   110→function Navigation() {
+   111→  const { t, toggle, lang } = useLang();
+   112→  const [scrolled, setScrolled] = useState(false);
+   113→  const [mobileOpen, setMobileOpen] = useState(false);
+   114→
+   115→  useEffect(() => {
+   116→    const onScroll = () => setScrolled(window.scrollY > 40);
+   117→    window.addEventListener("scroll", onScroll, { passive: true });
+   118→    return () => window.removeEventListener("scroll", onScroll);
+   119→  }, []);
+   120→
+   121→  return (
+   122→    <motion.header
+   123→      initial={{ y: -80 }}
+   124→      animate={{ y: 0 }}
+   125→      transition={{ duration: 0.5, ease: "easeOut" }}
+   126→      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+   127→        scrolled
+   128→          ? "bg-white/80 backdrop-blur-md shadow-[0_2px_20px_rgba(0,0,0,0.06)]"
+   129→          : "bg-transparent"
+   130→      }`}
+   131→    >
+   132→      <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+   133→        <a
+   134→          href="#hero"
+   135→          className="font-[family-name:var(--font-heading)] font-bold text-lg tracking-tight"
+   136→          style={{ color: "var(--pastel-sage)" }}
+   137→        >
+   138→          {t.navLogo}
+   139→        </a>
+   140→
+   141→        <div className="flex items-center gap-6">
+   142→          {/* Desktop nav */}
+   143→          <ul className="hidden md:flex items-center gap-8">
+   144→            {t.navItems.map((item) => (
+   145→              <li key={item.href}>
+   146→                <a
+   147→                  href={item.href}
+   148→                  className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors duration-200"
+   149→                >
+   150→                  {item.label}
+   151→                </a>
+   152→              </li>
+   153→            ))}
+   154→          </ul>
+   155→
+   156→          {/* Language toggle */}
+   157→          <button
+   158→            onClick={toggle}
+   159→            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 hover:bg-[var(--secondary)]"
+   160→            style={{ color: "var(--muted-foreground)" }}
+   161→            aria-label={t.toggleAriaLabel}
+   162→          >
+   163→            <Languages size={14} />
+   164→            <span>{t.langLabel}</span>
+   165→          </button>
+   166→
+   167→          {/* Mobile toggle */}
+   168→          <button
+   169→            className="md:hidden p-2 rounded-lg hover:bg-[var(--secondary)] transition"
+   170→            onClick={() => setMobileOpen(!mobileOpen)}
+   171→            aria-label="Toggle menu"
+   172→          >
+   173→            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+   174→          </button>
+   175→        </div>
+   176→      </nav>
+   177→
+   178→      {/* Mobile menu */}
+   179→      <AnimatePresence>
+   180→        {mobileOpen && (
+   181→          <motion.div
+   182→            initial={{ opacity: 0, height: 0 }}
+   183→            animate={{ opacity: 1, height: "auto" }}
+   184→            exit={{ opacity: 0, height: 0 }}
+   185→            className="md:hidden bg-white/95 backdrop-blur-md border-b border-[var(--border)]"
+   186→          >
+   187→            <ul className="flex flex-col px-6 py-4 gap-3">
+   188→              {t.navItems.map((item) => (
+   189→                <li key={item.href}>
+   190→                  <a
+   191→                    href={item.href}
+   192→                    onClick={() => setMobileOpen(false)}
+   193→                    className="block py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+   194→                  >
+   195→                    {item.label}
+   196→                  </a>
+   197→                </li>
+   198→              ))}
+   199→            </ul>
+   200→          </motion.div>
+   201→        )}
+   202→      </AnimatePresence>
+   203→    </motion.header>
+   204→  );
+   205→}
+   206→
+   207→/* ------------------------------------------------------------------ */
+   208→/*  HERO                                                               */
+   209→/* ------------------------------------------------------------------ */
+   210→
+   211→function HeroSection() {
+   212→  const { t } = useLang();
+   213→  return (
+   214→    <section
+   215→      id="hero"
+   216→      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+   217→    >
+   218→      <div className="absolute inset-0 -z-10">
+   219→        <div
+   220→          className="absolute top-20 -left-32 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl"
+   221→          style={{ background: "var(--pastel-sage-light)" }}
+   222→        />
+   223→        <div
+   224→          className="absolute bottom-20 -right-32 w-[450px] h-[450px] rounded-full opacity-25 blur-3xl"
+   225→          style={{ background: "var(--pastel-rose-light)" }}
+   226→        />
+   227→        <div
+   228→          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
+   229→          style={{ background: "var(--pastel-lavender-light)" }}
+   230→        />
+   231→        <div
+   232→          className="absolute inset-0 opacity-[0.03]"
+   233→          style={{
+   234→            backgroundImage:
+   235→              "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+   236→            backgroundSize: "60px 60px",
+   237→          }}
+   238→        />
+   239→      </div>
+   240→
+   241→      <div className="mx-auto max-w-4xl px-6 text-center">
+   242→        <motion.div
+   243→          initial={{ opacity: 0, y: 30 }}
+   244→          animate={{ opacity: 1, y: 0 }}
+   245→          transition={{ duration: 0.7, ease: "easeOut" }}
+   246→        >
+   247→          <motion.div
+   248→            initial={{ opacity: 0, scale: 0.9 }}
+   249→            animate={{ opacity: 1, scale: 1 }}
+   250→            transition={{ delay: 0.2, duration: 0.5 }}
+   251→            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8"
+   252→            style={{ background: "var(--pastel-sage-light)", color: "#4a6b52" }}
+   253→          >
+   254→            <Terminal size={14} />
+   255→            <span>{t.heroBadge}</span>
+   256→          </motion.div>
+   257→
+   258→          <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
+   259→            {t.heroName.split("\n").map((line, i) => (
+   260→              <span key={i}>
+   261→                {line}
+   262→                {i === 0 && <br />}
+   263→              </span>
+   264→            ))}
+   265→          </h1>
+   266→
+   267→          <p className="text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-4" style={{ color: "var(--muted-foreground)" }}>
+   268→            {t.heroDescription}
+   269→          </p>
+   270→
+   271→          <div className="flex flex-wrap justify-center gap-3 mt-8 mb-10">
+   272→            <Badge
+   273→              variant="secondary"
+   274→              className="text-xs px-3 py-1.5 rounded-full"
+   275→              style={{ background: "var(--pastel-cream)", color: "var(--muted-foreground)" }}
+   276→            >
+   277→              <Clock size={12} className="mr-1.5" />
+   278→              {t.heroBadgeFullTime}
+   279→            </Badge>
+   280→            <Badge
+   281→              variant="secondary"
+   282→              className="text-xs px-3 py-1.5 rounded-full"
+   283→              style={{ background: "var(--pastel-cream)", color: "var(--muted-foreground)" }}
+   284→            >
+   285→              <MapPin size={12} className="mr-1.5" />
+   286→              {t.heroBadgeLocation}
+   287→            </Badge>
+   288→          </div>
+   289→
+   290→          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+   291→            <Button
+   292→              asChild
+   293→              size="lg"
+   294→              className="rounded-full px-8 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+   295→              style={{ background: "var(--pastel-sage)", color: "#fff" }}
+   296→            >
+   297→              <a href="#contact">{t.heroCtaContact}</a>
+   298→            </Button>
+   299→            <Button
+   300→              asChild
+   301→              variant="outline"
+   302→              size="lg"
+   303→              className="rounded-full px-8 text-sm font-semibold border-[var(--border)] hover:bg-[var(--secondary)] transition-all duration-300"
+   304→            >
+   305→              <a href="#experience">{t.heroCtaExperience}</a>
+   306→            </Button>
+   307→          </div>
+   308→        </motion.div>
+   309→
+   310→        <motion.div
+   311→          initial={{ opacity: 0 }}
+   312→          animate={{ opacity: 1 }}
+   313→          transition={{ delay: 1.2, duration: 0.6 }}
+   314→          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+   315→        >
+   316→          <motion.div
+   317→            animate={{ y: [0, 8, 0] }}
+   318→            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+   319→          >
+   320→            <ChevronDown size={24} style={{ color: "var(--muted-foreground)" }} />
+   321→          </motion.div>
+   322→        </motion.div>
+   323→      </div>
+   324→    </section>
+   325→  );
+   326→}
+   327→
+   328→/* ------------------------------------------------------------------ */
+   329→/*  ABOUT                                                              */
+   330→/* ------------------------------------------------------------------ */
+   331→
+   332→const ABOUT_CARDS = [
+   333→  { titleKey: "aboutInfraTitle" as const, textKey: "aboutInfraText" as const, icon: Server, color: "var(--pastel-sage)", bg: "var(--pastel-sage-light)" },
+   334→  { titleKey: "aboutSecurityTitle" as const, textKey: "aboutSecurityText" as const, icon: Shield, color: "var(--pastel-rose)", bg: "var(--pastel-rose-light)" },
+   335→  { titleKey: "aboutObsTitle" as const, textKey: "aboutObsText" as const, icon: Activity, color: "var(--pastel-lavender)", bg: "var(--pastel-lavender-light)" },
+   336→] as const;
+   337→
+   338→function AboutSection() {
+   339→  const { t } = useLang();
+   340→  return (
+   341→    <section id="about" className="py-24 sm:py-32">
+   342→      <div className="mx-auto max-w-6xl px-6">
+   343→        <FadeInSection>
+   344→          <SectionLabel text={t.aboutLabel} />
+   345→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-12">
+   346→            {t.aboutTitle}
+   347→          </h2>
+   348→        </FadeInSection>
+   349→
+   350→        <div className="grid md:grid-cols-3 gap-6">
+   351→          {ABOUT_CARDS.map((card, i) => (
+   352→            <FadeInSection key={i} delay={(i + 1) * 0.1}>
+   353→              <Card className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300" style={{ background: card.bg }}>
+   354→                <CardContent className="p-6">
+   355→                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ background: card.color }}>
+   356→                    <card.icon size={20} className="text-white" />
+   357→                  </div>
+   358→                  <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-2">
+   359→                    {t[card.titleKey]}
+   360→                  </h3>
+   361→                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+   362→                    {t[card.textKey]}
+   363→                  </p>
+   364→                </CardContent>
+   365→              </Card>
+   366→            </FadeInSection>
+   367→          ))}
+   368→        </div>
+   369→      </div>
+   370→    </section>
+   371→  );
+   372→}
+   373→
+   374→/* ------------------------------------------------------------------ */
+   375→/*  EXPERIENCE                                                         */
+   376→/* ------------------------------------------------------------------ */
+   377→
+   378→function ExperienceSection() {
+   379→  const { t } = useLang();
+   380→  return (
+   381→    <section id="experience" className="py-24 sm:py-32" style={{ background: "var(--pastel-cream)" }}>
+   382→      <div className="mx-auto max-w-6xl px-6">
+   383→        <FadeInSection>
+   384→          <SectionLabel text={t.expLabel} />
+   385→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   386→            {t.expTitle}
+   387→          </h2>
+   388→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+   389→            {t.expSubtitle}
+   390→          </p>
+   391→        </FadeInSection>
+   392→
+   393→        <div className="relative">
+   394→          <div className="absolute left-[19px] sm:left-1/2 sm:-translate-x-px top-0 bottom-0 w-0.5" style={{ background: "var(--border)" }} />
+   395→          <div className="space-y-12">
+   396→            {t.experiences.map((exp, i) => {
+   397→              const meta = experienceMeta[i];
+   398→              const IconComp = ICON_MAP[meta.icon];
+   399→              return (
+   400→                <FadeInSection key={i} delay={i * 0.15}>
+   401→                  <div className={`relative flex flex-col sm:flex-row gap-6 sm:gap-12 ${i % 2 === 1 ? "sm:flex-row-reverse" : ""}`}>
+   402→                    <div className="absolute left-[11px] sm:left-1/2 sm:-translate-x-1/2 w-[18px] h-[18px] rounded-full border-4 border-[var(--background)] z-10" style={{ background: meta.color }} />
+   403→
+   404→                    <div className={`ml-12 sm:ml-0 sm:w-1/2`}>
+   405→                      <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+   406→                        <div className="h-1" style={{ background: meta.color }} />
+   407→                        <CardContent className="p-6">
+   408→                          <div className="flex items-center gap-3 mb-3">
+   409→                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.colorLight, color: meta.color }}>
+   410→                              <IconComp size={18} />
+   411→                            </div>
+   412→                            <div>
+   413→                              <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: meta.color }}>{exp.period}</span>
+   414→                              <span className="text-xs ml-2 px-2 py-0.5 rounded-full" style={{ background: meta.colorLight, color: meta.color }}>{exp.duration}</span>
+   415→                            </div>
+   416→                          </div>
+   417→                          <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-1">{exp.title}</h3>
+   418→                          <a href={experienceUrls[i]} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline mb-3 inline-block" style={{ color: "var(--muted-foreground)" }}>
+   419→                            {exp.company}
+   420→                          </a>
+   421→                          <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--muted-foreground)" }}>{exp.description}</p>
+   422→                          <ul className="space-y-1.5">
+   423→                            {exp.highlights.map((h, hi) => (
+   424→                              <li key={hi} className="text-sm flex items-start gap-2">
+   425→                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: meta.color }} />
+   426→                                <span style={{ color: "var(--muted-foreground)" }}>{h}</span>
+   427→                              </li>
+   428→                            ))}
+   429→                          </ul>
+   430→                        </CardContent>
+   431→                      </Card>
+   432→                    </div>
+   433→                    <div className="hidden sm:block sm:w-1/2" />
+   434→                  </div>
+   435→                </FadeInSection>
+   436→              );
+   437→            })}
+   438→          </div>
+   439→        </div>
+   440→      </div>
+   441→    </section>
+   442→  );
+   443→}
+   444→
+   445→/* ------------------------------------------------------------------ */
+   446→/*  SKILLS                                                             */
+   447→/* ------------------------------------------------------------------ */
+   448→
+   449→function SkillsSection() {
+   450→  const { t } = useLang();
+   451→  return (
+   452→    <section id="skills" className="py-24 sm:py-32">
+   453→      <div className="mx-auto max-w-6xl px-6">
+   454→        <FadeInSection>
+   455→          <SectionLabel text={t.skillsLabel} />
+   456→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   457→            {t.skillsTitle}
+   458→          </h2>
+   459→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>{t.skillsSubtitle}</p>
+   460→        </FadeInSection>
+   461→
+   462→        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+   463→          {t.skillGroups.map((group, i) => {
+   464→            const meta = skillGroupMeta[i];
+   465→            const IconComp = ICON_MAP[meta.icon];
+   466→            return (
+   467→              <FadeInSection key={i} delay={i * 0.1}>
+   468→                <Card className="h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group">
+   469→                  <CardContent className="p-6">
+   470→                    <div className="flex items-center gap-3 mb-4">
+   471→                      <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ background: meta.colorLight, color: meta.color }}>
+   472→                        <IconComp size={20} />
+   473→                      </div>
+   474→                      <h3 className="font-[family-name:var(--font-heading)] font-semibold text-sm">{group.title}</h3>
+   475→                    </div>
+   476→                    <div className="flex flex-wrap gap-2">
+   477→                      {group.skills.map((skill, si) => (
+   478→                        <span key={si} className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors duration-200" style={{ background: meta.colorLight, color: "#1a1a1a" }}>
+   479→                          {skill}
+   480→                        </span>
+   481→                      ))}
+   482→                    </div>
+   483→                  </CardContent>
+   484→                </Card>
+   485→              </FadeInSection>
+   486→            );
+   487→          })}
+   488→        </div>
+   489→      </div>
+   490→    </section>
+   491→  );
+   492→}
+   493→
+   494→/* ------------------------------------------------------------------ */
+   495→/*  EDUCATION                                                          */
+   496→/* ------------------------------------------------------------------ */
+   497→
+   498→function EducationSection() {
+   499→  const { t } = useLang();
+   500→  return (
+   501→    <section id="education" className="py-24 sm:py-32" style={{ background: "var(--pastel-cream)" }}>
+   502→      <div className="mx-auto max-w-6xl px-6">
+   503→        <FadeInSection>
+   504→          <SectionLabel text={t.eduLabel} />
+   505→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-12">
+   506→            {t.eduTitle}
+   507→          </h2>
+   508→        </FadeInSection>
+   509→
+   510→        <div className="grid sm:grid-cols-2 gap-5">
+   511→          {t.education.map((edu, i) => {
+   512→            const meta = educationMeta[i];
+   513→            return (
+   514→              <FadeInSection key={i} delay={i * 0.1}>
+   515→                <Card className="h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
+   516→                  <div className="flex h-full">
+   517→                    <div className="w-1.5 shrink-0" style={{ background: meta.color }} />
+   518→                    <CardContent className="p-6 flex-1">
+   519→                      <div className="flex items-start gap-3">
+   520→                        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" style={{ background: meta.colorLight, color: meta.color }}>
+   521→                          <Award size={20} />
+   522→                        </div>
+   523→                        <div>
+   524→                          <span className="text-xs font-semibold tracking-wide" style={{ color: meta.color }}>{edu.year}</span>
+   525→                          <h3 className="font-[family-name:var(--font-heading)] font-semibold mt-1">{edu.title}</h3>
+   526→                          <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>{edu.subtitle}</p>
+   527→                        </div>
+   528→                      </div>
+   529→                    </CardContent>
+   530→                  </div>
+   531→                </Card>
+   532→              </FadeInSection>
+   533→            );
+   534→          })}
+   535→        </div>
+   536→      </div>
+   537→    </section>
+   538→  );
+   539→}
+   540→
+   541→/* ------------------------------------------------------------------ */
+   542→/*  CONTACT                                                            */
+   543→/* ------------------------------------------------------------------ */
+   544→
+   545→function ContactSection() {
+   546→  const { t } = useLang();
+   547→  return (
+   548→    <section id="contact" className="py-24 sm:py-32">
+   549→      <div className="mx-auto max-w-6xl px-6">
+   550→        <FadeInSection>
+   551→          <SectionLabel text={t.contactLabel} />
+   552→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   553→            {t.contactTitle}
+   554→          </h2>
+   555→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>{t.contactSubtitle}</p>
+   556→        </FadeInSection>
+   557→
+   558→        <FadeInSection delay={0.15}>
+   559→          <Card className="max-w-2xl mx-auto border-0 shadow-md overflow-hidden">
+   560→            <div className="h-1.5" style={{ background: "linear-gradient(90deg, var(--pastel-sage), var(--pastel-lavender), var(--pastel-rose))" }} />
+   561→            <CardContent className="p-8 sm:p-10">
+   562→              <div className="space-y-6">
+   563→                <a href="tel:+79247655602" className="flex items-center gap-4 p-4 rounded-xl transition-colors duration-200 hover:bg-[var(--secondary)] group">
+   564→                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ background: "var(--pastel-sage-light)", color: "var(--pastel-sage)" }}>
+   565→                    <Phone size={22} />
+   566→                  </div>
+   567→                  <div>
+   568→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>{t.contactPhone}</p>
+   569→                    <p className="font-semibold">+7 (924) 765-56-02</p>
+   570→                  </div>
+   571→                </a>
+   572→
+   573→                <Separator className="bg-[var(--border)]" />
+   574→
+   575→                <a href="mailto:19970710ko@gmail.com" className="flex items-center gap-4 p-4 rounded-xl transition-colors duration-200 hover:bg-[var(--secondary)] group">
+   576→                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ background: "var(--pastel-rose-light)", color: "var(--pastel-rose)" }}>
+   577→                    <Mail size={22} />
+   578→                  </div>
+   579→                  <div>
+   580→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>{t.contactEmail}</p>
+   581→                    <p className="font-semibold">19970710ko@gmail.com</p>
+   582→                  </div>
+   583→                </a>
+   584→
+   585→                <Separator className="bg-[var(--border)]" />
+   586→
+   587→                <div className="flex items-center gap-4 p-4 rounded-xl">
+   588→                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--pastel-lavender-light)", color: "var(--pastel-lavender)" }}>
+   589→                    <Briefcase size={22} />
+   590→                  </div>
+   591→                  <div>
+   592→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>{t.contactPosition}</p>
+   593→                    <p className="font-semibold">{t.contactPositionValue}</p>
+   594→                  </div>
+   595→                </div>
+   596→
+   597→                <Separator className="bg-[var(--border)]" />
+   598→
+   599→                <div className="flex items-center gap-4 p-4 rounded-xl">
+   600→                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#f5ede3", color: "var(--pastel-warm)" }}>
+   601→                    <FileText size={22} />
+   602→                  </div>
+   603→                  <div>
+   604→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>{t.contactResume}</p>
+   605→                    <p className="font-semibold text-sm" style={{ color: "var(--muted-foreground)" }}>{t.contactResumeValue}</p>
+   606→                  </div>
+   607→                </div>
+   608→              </div>
+   609→            </CardContent>
+   610→          </Card>
+   611→        </FadeInSection>
+   612→      </div>
+   613→    </section>
+   614→  );
+   615→}
+   616→
+   617→/* ------------------------------------------------------------------ */
+   618→/*  PROJECTS                                                           */
+   619→/* ------------------------------------------------------------------ */
+   620→
+   621→function ProjectsSection() {
+   622→  const { t } = useLang();
+   623→  return (
+   624→    <section id="projects" className="py-24 sm:py-32" style={{ background: "var(--pastel-cream)" }}>
+   625→      <div className="mx-auto max-w-6xl px-6">
+   626→        <FadeInSection>
+   627→          <SectionLabel text={t.projectsLabel} />
+   628→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   629→            {t.projectsTitle}
+   630→          </h2>
+   631→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>{t.projectsSubtitle}</p>
+   632→        </FadeInSection>
+   633→
+   634→        <div className="grid md:grid-cols-2 gap-5">
+   635→          {t.projects.map((project, i) => {
+   636→            const meta = projectMeta[i];
+   637→            return (
+   638→              <FadeInSection key={i} delay={i * 0.1}>
+   639→                <Card className={`h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden ${i === t.projects.length - 1 && t.projects.length % 2 === 1 ? "md:col-span-2" : ""}`}>
+   640→                  <div className="flex h-full">
+   641→                    <div className="w-1.5 shrink-0" style={{ background: meta.color }} />
+   642→                    <CardContent className="p-6 flex-1">
+   643→                      <div className="flex items-start gap-3">
+   644→                        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" style={{ background: meta.colorLight, color: meta.color }}>
+   645→                          <Rocket size={20} />
+   646→                        </div>
+   647→                        <div className="flex-1">
+   648→                          <h3 className="font-[family-name:var(--font-heading)] font-semibold">{project.title}</h3>
+   649→                          <p className="text-sm mt-2 leading-relaxed" style={{ color: "var(--muted-foreground)" }}>{project.description}</p>
+   650→                          {project.links && (
+   651→                            <div className="flex gap-3 mt-3">
+   652→                              {project.links.map((link, li) => (
+   653→                                <a key={li} href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium hover:underline transition-colors" style={{ color: meta.color }}>
+   654→                                  <ExternalLink size={12} />
+   655→                                  {link.label}
+   656→                                </a>
+   657→                              ))}
+   658→                            </div>
+   659→                          )}
+   660→                        </div>
+   661→                      </div>
+   662→                    </CardContent>
+   663→                  </div>
+   664→                </Card>
+   665→              </FadeInSection>
+   666→            );
+   667→          })}
+   668→        </div>
+   669→      </div>
+   670→    </section>
+   671→  );
+   672→}
+   673→
+   674→/* ------------------------------------------------------------------ */
+   675→/*  FOOTER                                                             */
+   676→/* ------------------------------------------------------------------ */
+   677→
+   678→function Footer() {
+   679→  const { t } = useLang();
+   680→  return (
+   681→    <footer className="py-8 border-t border-[var(--border)]" style={{ background: "var(--pastel-cream)" }}>
+   682→      <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+   683→        <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+   684→          {t.footerCopyright.replace("{year}", String(new Date().getFullYear()))}
+   685→        </p>
+   686→        <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>{t.footerPosition}</p>
+   687→      </div>
+   688→    </footer>
+   689→  );
+   690→}
+   691→
+   692→/* ------------------------------------------------------------------ */
+   693→/*  SCROLL-TO-TOP                                                      */
+   694→/* ------------------------------------------------------------------ */
+   695→
+   696→function ScrollToTop() {
+   697→  const { t } = useLang();
+   698→  const [visible, setVisible] = useState(false);
+   699→  useEffect(() => {
+   700→    const onScroll = () => setVisible(window.scrollY > 600);
+   701→    window.addEventListener("scroll", onScroll, { passive: true });
+   702→    return () => window.removeEventListener("scroll", onScroll);
+   703→  }, []);
+   704→
+   705→  return (
+   706→    <AnimatePresence>
+   707→      {visible && (
+   708→        <motion.button
+   709→          initial={{ opacity: 0, scale: 0.8 }}
+   710→          animate={{ opacity: 1, scale: 1 }}
+   711→          exit={{ opacity: 0, scale: 0.8 }}
+   712→          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+   713→          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-300"
+   714→          style={{ background: "var(--pastel-sage)", color: "#fff" }}
+   715→          aria-label={t.heroScrollAria}
+   716→        >
+   717→          <ArrowUp size={18} />
+   718→        </motion.button>
+   719→      )}
+   720→    </AnimatePresence>
+   721→  );
+   722→}
+   723→
+   724→/* ------------------------------------------------------------------ */
+   725→/*  PAGE                                                               */
+   726→/* ------------------------------------------------------------------ */
+   727→
+   728→export default function Home() {
+   729→  return (
+   730→    <LangProvider>
+   731→      <TooltipProvider>
+   732→        <div className="min-h-screen flex flex-col bg-background">
+   733→          <Navigation />
+   734→          <main className="flex-1">
+   735→            <HeroSection />
+   736→            <AboutSection />
+   737→            <ExperienceSection />
+   738→            <SkillsSection />
+   739→            <EducationSection />
+   740→            <ContactSection />
+   741→            <ProjectsSection />
+   742→          </main>
+   743→          <Footer />
+   744→          <ScrollToTop />
+   745→        </div>
+   746→      </TooltipProvider>
+   747→    </LangProvider>
+   748→  );
+   749→}

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "резюме",
   ],
   icons: {
-    icon: "public/logo.svg",
+    icon: "/logo.svg",
   },
 };
 

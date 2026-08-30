@@ -132,9 +132,10 @@ function Navigation() {
       <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <a
           href="#hero"
-          className="font-[family-name:var(--font-heading)] font-bold text-lg tracking-tight"
+          className="font-[family-name:var(--font-heading)] font-bold text-lg tracking-tight flex items-center gap-2"
           style={{ color: "var(--pastel-sage)" }}
         >
+          <img src="/logo.svg" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
           {t.navLogo}
         </a>
 
