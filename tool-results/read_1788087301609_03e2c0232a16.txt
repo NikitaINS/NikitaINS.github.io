@@ -1,0 +1,1134 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useRef, useState } from "react";
+     4→import { motion, useInView, AnimatePresence } from "framer-motion";
+     5→import {
+     6→  Monitor,
+     7→  Server,
+     8→  Shield,
+     9→  Code,
+    10→  Database,
+    11→  Cloud,
+    12→  Network,
+    13→  Settings,
+    14→  Phone,
+    15→  Mail,
+    16→  Briefcase,
+    17→  GraduationCap,
+    18→  ChevronDown,
+    19→  Terminal,
+    20→  Container,
+    21→  GitBranch,
+    22→  Activity,
+    23→  Lock,
+    24→  Clock,
+    25→  MapPin,
+    26→  Award,
+    27→  FileText,
+    28→  Menu,
+    29→  X,
+    30→  ArrowUp,
+    31→  Rocket,
+    32→  ExternalLink,
+    33→} from "lucide-react";
+    34→import { Button } from "@/components/ui/button";
+    35→import { Badge } from "@/components/ui/badge";
+    36→import { Card, CardContent } from "@/components/ui/card";
+    37→import { Separator } from "@/components/ui/separator";
+    38→import {
+    39→  Tooltip,
+    40→  TooltipContent,
+    41→  TooltipProvider,
+    42→  TooltipTrigger,
+    43→} from "@/components/ui/tooltip";
+    44→
+    45→/* ------------------------------------------------------------------ */
+    46→/*  DATA                                                               */
+    47→/* ------------------------------------------------------------------ */
+    48→
+    49→const NAV_ITEMS = [
+    50→  { label: "Обо мне", href: "#about" },
+    51→  { label: "Опыт", href: "#experience" },
+    52→  { label: "Навыки", href: "#skills" },
+    53→  { label: "Образование", href: "#education" },
+    54→  { label: "Контакт", href: "#contact" },
+    55→  { label: "Кейсы", href: "#projects" },
+    56→];
+    57→
+    58→const EXPERIENCES = [
+    59→  {
+    60→    period: "июль 2024 — н.в.",
+    61→    duration: "7 мес",
+    62→    title: "SRE-инженер (DevOps)",
+    63→    company: "Центральный банк РФ",
+    64→    companyUrl: "https://www.cbr.ru",
+    65→    description:
+    66→      "Поддержка и развитие инфраструктурных сервисов Банка России. Работа с мониторингом, observability-стеком и сетевой инфраструктурой.",
+    67→    highlights: [
+    68→      "Prometheus, Zabbix, VictoriaMetrics, SMOS",
+    69→      "Elasticsearch (ELK), Kafka и др.",
+    70→      "Сетевая инфраструктура: маршрутизация, коммутация, VLAN",
+    71→      "Управление задачами в Jira, документация в Confluence",
+    72→      "Процессно-ориентированные системы (Camunda)",
+    73→    ],
+    74→    color: "var(--pastel-sage)",
+    75→    colorLight: "var(--pastel-sage-light)",
+    76→    icon: Server,
+    77→  },
+    78→  {
+    79→    period: "2022 — 2024",
+    80→    duration: "1 год 10 мес",
+    81→    title: "Системный администратор / DevOps",
+    82→    company: "ГБУ НВК \u00abСаха\u00bb",
+    83→    companyUrl: "https://nvk-online.ru",
+    84→    description:
+    85→      "Комплексное администрирование ИТ-инфраструктуры компании, внедрение DevOps-практик и автоматизация процессов.",
+    86→    highlights: [
+    87→      "Мониторинг: Zabbix, Grafana — настройка с нуля, кастомные UserParameter (Bash/PowerShell)",
+    88→      "Виртуализация: Proxmox VE (LXC, Docker, Kubernetes k8s)",
+    89→      "Серверы: Windows Server, Astra Linux, IDECO firewall (NGFW+)",
+    90→      "DevOps CI/CD: Git, GitLab — организация процесса разработки",
+    91→      "Сетевая безопасность: VPN (L2TP, IPSec, WireGuard), VLAN",
+    92→      "Автоматизация: скрипты (cron, bash, python), развёртывание IP-телефонии (PBX)",
+    93→      "AI-ассистент на Python для внутренних задач",
+    94→      "Управление направлением 1 и 2 линии поддержки, закупки ИТ-оборудования, планирование работы ИТ отдела.",
+    95→    ],
+    96→    color: "var(--pastel-rose)",
+    97→    colorLight: "var(--pastel-rose-light)",
+    98→    icon: Cloud,
+    99→  },
+   100→  {
+   101→    period: "2021 — 2022",
+   102→    duration: "1 год 6 мес",
+   103→    title: "Системный администратор",
+   104→    company: "ГБУ НВК \u00abСаха\u00bb",
+   105→    companyUrl: "https://nvk-online.ru",
+   106→    description:
+   107→      "Администрирование ИТ-инфраструктуры: серверы, сети, рабочие станции.",
+   108→    highlights: [
+   109→      "Администрирование Linux и Windows",
+   110→      "VMware vSphere — виртуализация",
+   111→      "Active Directory: управление пользователями и политиками",
+   112→      "Сетевое оборудование L2: Cisco, 3Com, Dell, Huawei, Mikrotik",
+   113→      "Резервное копирование и восстановление",
+   114→      "Поддержка пользователей (1-я и 2-я линия, до 70 пользователей)",
+   115→    ],
+   116→    color: "var(--pastel-lavender)",
+   117→    colorLight: "var(--pastel-lavender-light)",
+   118→    icon: Settings,
+   119→  },
+   120→];
+   121→
+   122→const SKILL_GROUPS = [
+   123→  {
+   124→    title: "ОС и серверы",
+   125→    icon: Monitor,
+   126→    color: "var(--pastel-sage)",
+   127→    colorLight: "var(--pastel-sage-light)",
+   128→    skills: ["Linux", "Ubuntu Server", "Debian", "Astra Linux", "Windows Server", "KVM"],
+   129→  },
+   130→  {
+   131→    title: "Контейнеризация и виртуализация",
+   132→    icon: Container,
+   133→    color: "var(--pastel-rose)",
+   134→    colorLight: "var(--pastel-rose-light)",
+   135→    skills: ["Docker", "LXC", "Kubernetes", "Proxmox VE", "VMware vSphere"],
+   136→  },
+   137→  {
+   138→    title: "CI/CD и DevOps",
+   139→    icon: GitBranch,
+   140→    color: "var(--pastel-lavender)",
+   141→    colorLight: "var(--pastel-lavender-light)",
+   142→    skills: ["Git", "GitLab", "CI/CD пайплайны", "Ansible", "DevOps-практики"],
+   143→  },
+   144→  {
+   145→    title: "Мониторинг и Observability",
+   146→    icon: Activity,
+   147→    color: "var(--pastel-warm)",
+   148→    colorLight: "#f5ede3",
+   149→    skills: ["Zabbix", "Grafana", "Prometheus", "VictoriaMetrics", "ELK Stack"],
+   150→  },
+   151→  {
+   152→    title: "Сети и безопасность",
+   153→    icon: Shield,
+   154→    color: "var(--pastel-peach)",
+   155→    colorLight: "#f5e5de",
+   156→    skills: ["TCP/IP", "VLAN", "OSPF/BGP", "VPN (L2TP/IPSec/WG)", "Vipnet", "S-Terra", "IDECO NGFW"],
+   157→  },
+   158→  {
+   159→    title: "Языки и инструменты",
+   160→    icon: Code,
+   161→    color: "#b5c5d4",
+   162→    colorLight: "#dfe9f0",
+   163→    skills: ["Bash", "Python", "VBA", "Nginx", "Apache HTTP", "Jira", "Confluence"],
+   164→  },
+   165→];
+   166→
+   167→const EDUCATION = [
+   168→  {
+   169→    year: "2025",
+   170→    title: "Защита сетевой инфраструктуры на основе продуктов С-Терра",
+   171→    subtitle: "С-Терра СиЭсПи",
+   172→    color: "var(--pastel-sage)",
+   173→    colorLight: "var(--pastel-sage-light)",
+   174→  },
+   175→  {
+   176→    year: "2025",
+   177→    title: "Введение в VBA. Начало программирования в среде MS Office Excel",
+   178→    subtitle: "АНО ДПО \u00abУчебный центр РРС\u00bb",
+   179→    color: "var(--pastel-rose)",
+   180→    colorLight: "var(--pastel-rose-light)",
+   181→  },
+   182→  {
+   183→    year: "2024",
+   184→    title: "Администрирование АПКШ Континент версии 3.9",
+   185→    subtitle: "АНО ДПО ЦПК",
+   186→    color: "var(--pastel-lavender)",
+   187→    colorLight: "var(--pastel-lavender-light)",
+   188→  },
+   189→  {
+   190→    year: "2021",
+   191→    title: "Бакалавр, Инфокоммуникационные технологии и системы связи",
+   192→    subtitle: "СВФУ им. М.К. Аммосова, Институт математики и информатики",
+   193→    color: "var(--pastel-warm)",
+   194→    colorLight: "#f5ede3",
+   195→  },
+   196→];
+   197→
+   198→const PROJECTS = [
+   199→  {
+   200→    title: "Observability в телевещании",
+   201→    description:
+   202→      "Построил observability с нуля в телевещании: Zabbix + Grafana, тепловые карты, кастомные UserParameter на Bash/PowerShell. В госсекторе \u2014 единая панель для ИТ и бизнес-процессов.",
+   203→    color: "var(--pastel-sage)",
+   204→    colorLight: "var(--pastel-sage-light)",
+   205→  },
+   206→  {
+   207→    title: "Виртуализация и контейнеризация",
+   208→    description:
+   209→      "Внедрил виртуализацию (Proxmox VE, VMware) и контейнеризацию (Docker, LXC) \u2014 кластеризация, резервное копирование.",
+   210→    color: "var(--pastel-rose)",
+   211→    colorLight: "var(--pastel-rose-light)",
+   212→  },
+   213→  {
+   214→    title: "Импортозамещение инфраструктуры",
+   215→    description:
+   216→      "Реализовал импортозамещение: перевёл инфраструктуру на Astra Linux/РЕД ОС, заменил МСЭ на отечественные (Континент, Vipnet, S-Terra) с криптозащитой (СКЗИ).",
+   217→    color: "var(--pastel-lavender)",
+   218→    colorLight: "var(--pastel-lavender-light)",
+   219→  },
+   220→  {
+   221→    title: "\u00abДети Азии\u00bb \u2014 международные спортивные игры",
+   222→    description:
+   223→      "Обеспечил бесперебойное интернет-вещание на международных спортивных играх \u00abДети Азии\u00bb как главный инженер \u2014 управлял командой и инфраструктурой в сжатые сроки.",
+   224→    color: "var(--pastel-warm)",
+   225→    colorLight: "#f5ede3",
+   226→  },
+   227→  {
+   228→    title: "Детский телеканал \u00abТооку\u00bb",
+   229→    description:
+   230→      "Запустил с нуля детский телеканал \u00abТооку\u00bb: обеспечил полный технический контур \u2014 от рабочих станций до интернет-вещания, включая мониторинг, резервирование и отказоустойчивость.",
+   231→    links: [
+   232→      { label: "tooku.ru", url: "https://tooku.ru/" },
+   233→      { label: "nvk-online.ru", url: "https://nvk-online.ru" },
+   234→    ],
+   235→    color: "#b5c5d4",
+   236→    colorLight: "#dfe9f0",
+   237→  },
+   238→];
+   239→
+   240→/* ------------------------------------------------------------------ */
+   241→/*  ANIMATED SECTION WRAPPER                                          */
+   242→/* ------------------------------------------------------------------ */
+   243→
+   244→function FadeInSection({
+   245→  children,
+   246→  className = "",
+   247→  delay = 0,
+   248→}: {
+   249→  children: React.ReactNode;
+   250→  className?: string;
+   251→  delay?: number;
+   252→}) {
+   253→  const ref = useRef<HTMLDivElement>(null);
+   254→  const isInView = useInView(ref, { once: true, margin: "-60px" });
+   255→  return (
+   256→    <motion.div
+   257→      ref={ref}
+   258→      initial={{ opacity: 0, y: 40 }}
+   259→      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+   260→      transition={{ duration: 0.6, ease: "easeOut", delay }}
+   261→      className={className}
+   262→    >
+   263→      {children}
+   264→    </motion.div>
+   265→  );
+   266→}
+   267→
+   268→/* ------------------------------------------------------------------ */
+   269→/*  NAVIGATION                                                         */
+   270→/* ------------------------------------------------------------------ */
+   271→
+   272→function Navigation() {
+   273→  const [scrolled, setScrolled] = useState(false);
+   274→  const [mobileOpen, setMobileOpen] = useState(false);
+   275→
+   276→  useEffect(() => {
+   277→    const onScroll = () => setScrolled(window.scrollY > 40);
+   278→    window.addEventListener("scroll", onScroll, { passive: true });
+   279→    return () => window.removeEventListener("scroll", onScroll);
+   280→  }, []);
+   281→
+   282→  return (
+   283→    <motion.header
+   284→      initial={{ y: -80 }}
+   285→      animate={{ y: 0 }}
+   286→      transition={{ duration: 0.5, ease: "easeOut" }}
+   287→      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+   288→        scrolled
+   289→          ? "bg-white/80 backdrop-blur-md shadow-[0_2px_20px_rgba(0,0,0,0.06)]"
+   290→          : "bg-transparent"
+   291→      }`}
+   292→    >
+   293→      <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+   294→        <a
+   295→          href="#hero"
+   296→          className="font-[family-name:var(--font-heading)] font-bold text-lg tracking-tight"
+   297→          style={{ color: "var(--pastel-sage)" }}
+   298→        >
+   299→          Н. Иванов
+   300→        </a>
+   301→
+   302→        {/* Desktop nav */}
+   303→        <ul className="hidden md:flex items-center gap-8">
+   304→          {NAV_ITEMS.map((item) => (
+   305→            <li key={item.href}>
+   306→              <a
+   307→                href={item.href}
+   308→                className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors duration-200"
+   309→              >
+   310→                {item.label}
+   311→              </a>
+   312→            </li>
+   313→          ))}
+   314→        </ul>
+   315→
+   316→        {/* Mobile toggle */}
+   317→        <button
+   318→          className="md:hidden p-2 rounded-lg hover:bg-[var(--secondary)] transition"
+   319→          onClick={() => setMobileOpen(!mobileOpen)}
+   320→          aria-label="Toggle menu"
+   321→        >
+   322→          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+   323→        </button>
+   324→      </nav>
+   325→
+   326→      {/* Mobile menu */}
+   327→      <AnimatePresence>
+   328→        {mobileOpen && (
+   329→          <motion.div
+   330→            initial={{ opacity: 0, height: 0 }}
+   331→            animate={{ opacity: 1, height: "auto" }}
+   332→            exit={{ opacity: 0, height: 0 }}
+   333→            className="md:hidden bg-white/95 backdrop-blur-md border-b border-[var(--border)]"
+   334→          >
+   335→            <ul className="flex flex-col px-6 py-4 gap-3">
+   336→              {NAV_ITEMS.map((item) => (
+   337→                <li key={item.href}>
+   338→                  <a
+   339→                    href={item.href}
+   340→                    onClick={() => setMobileOpen(false)}
+   341→                    className="block py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+   342→                  >
+   343→                    {item.label}
+   344→                  </a>
+   345→                </li>
+   346→              ))}
+   347→            </ul>
+   348→          </motion.div>
+   349→        )}
+   350→      </AnimatePresence>
+   351→    </motion.header>
+   352→  );
+   353→}
+   354→
+   355→/* ------------------------------------------------------------------ */
+   356→/*  HERO                                                               */
+   357→/* ------------------------------------------------------------------ */
+   358→
+   359→function HeroSection() {
+   360→  return (
+   361→    <section
+   362→      id="hero"
+   363→      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+   364→    >
+   365→      {/* Background decoration */}
+   366→      <div className="absolute inset-0 -z-10">
+   367→        {/* Gradient blobs */}
+   368→        <div
+   369→          className="absolute top-20 -left-32 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl"
+   370→          style={{ background: "var(--pastel-sage-light)" }}
+   371→        />
+   372→        <div
+   373→          className="absolute bottom-20 -right-32 w-[450px] h-[450px] rounded-full opacity-25 blur-3xl"
+   374→          style={{ background: "var(--pastel-rose-light)" }}
+   375→        />
+   376→        <div
+   377→          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
+   378→          style={{ background: "var(--pastel-lavender-light)" }}
+   379→        />
+   380→
+   381→        {/* Grid pattern */}
+   382→        <div
+   383→          className="absolute inset-0 opacity-[0.03]"
+   384→          style={{
+   385→            backgroundImage:
+   386→              "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+   387→            backgroundSize: "60px 60px",
+   388→          }}
+   389→        />
+   390→      </div>
+   391→
+   392→      <div className="mx-auto max-w-4xl px-6 text-center">
+   393→        <motion.div
+   394→          initial={{ opacity: 0, y: 30 }}
+   395→          animate={{ opacity: 1, y: 0 }}
+   396→          transition={{ duration: 0.7, ease: "easeOut" }}
+   397→        >
+   398→          {/* Decorative terminal badge */}
+   399→          <motion.div
+   400→            initial={{ opacity: 0, scale: 0.9 }}
+   401→            animate={{ opacity: 1, scale: 1 }}
+   402→            transition={{ delay: 0.2, duration: 0.5 }}
+   403→            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8"
+   404→            style={{
+   405→              background: "var(--pastel-sage-light)",
+   406→              color: "#4a6b52",
+   407→            }}
+   408→          >
+   409→            <Terminal size={14} />
+   410→            <span>SRE / Observability / Network Engineer</span>
+   411→          </motion.div>
+   412→
+   413→          <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
+   414→            Иванов Никита{"\n"}Станиславович
+   415→          </h1>
+   416→
+   417→          <p className="text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-4" style={{ color: "var(--muted-foreground)" }}>
+   418→            SRE / Observability / Network-инженер с 5+ лет опыта. Надёжность, автоматизация и
+   419→            непрерывная доставка — мои основные приоритеты.
+   420→          </p>
+   421→
+   422→          <div className="flex flex-wrap justify-center gap-3 mt-8 mb-10">
+   423→            <Badge
+   424→              variant="secondary"
+   425→              className="text-xs px-3 py-1.5 rounded-full"
+   426→              style={{ background: "var(--pastel-cream)", color: "var(--muted-foreground)" }}
+   427→            >
+   428→              <Clock size={12} className="mr-1.5" />
+   429→              Полный день
+   430→            </Badge>
+   431→            <Badge
+   432→              variant="secondary"
+   433→              className="text-xs px-3 py-1.5 rounded-full"
+   434→              style={{ background: "var(--pastel-cream)", color: "var(--muted-foreground)" }}
+   435→            >
+   436→              <MapPin size={12} className="mr-1.5" />
+   437→              Удалённо / Релокация
+   438→            </Badge>
+   439→          </div>
+   440→
+   441→          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+   442→            <Button
+   443→              asChild
+   444→              size="lg"
+   445→              className="rounded-full px-8 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+   446→              style={{ background: "var(--pastel-sage)", color: "#fff" }}
+   447→            >
+   448→              <a href="#contact">Связаться</a>
+   449→            </Button>
+   450→            <Button
+   451→              asChild
+   452→              variant="outline"
+   453→              size="lg"
+   454→              className="rounded-full px-8 text-sm font-semibold border-[var(--border)] hover:bg-[var(--secondary)] transition-all duration-300"
+   455→            >
+   456→              <a href="#experience">Опыт работы</a>
+   457→            </Button>
+   458→          </div>
+   459→        </motion.div>
+   460→
+   461→        {/* Scroll indicator */}
+   462→        <motion.div
+   463→          initial={{ opacity: 0 }}
+   464→          animate={{ opacity: 1 }}
+   465→          transition={{ delay: 1.2, duration: 0.6 }}
+   466→          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+   467→        >
+   468→          <motion.div
+   469→            animate={{ y: [0, 8, 0] }}
+   470→            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+   471→          >
+   472→            <ChevronDown size={24} style={{ color: "var(--muted-foreground)" }} />
+   473→          </motion.div>
+   474→        </motion.div>
+   475→      </div>
+   476→    </section>
+   477→  );
+   478→}
+   479→
+   480→/* ------------------------------------------------------------------ */
+   481→/*  ABOUT                                                              */
+   482→/* ------------------------------------------------------------------ */
+   483→
+   484→function AboutSection() {
+   485→  return (
+   486→    <section id="about" className="py-24 sm:py-32">
+   487→      <div className="mx-auto max-w-6xl px-6">
+   488→        <FadeInSection>
+   489→          <SectionLabel text="Обо мне" />
+   490→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-12">
+   491→            Профиль специалиста
+   492→          </h2>
+   493→        </FadeInSection>
+   494→
+   495→        <div className="grid md:grid-cols-3 gap-6">
+   496→          <FadeInSection delay={0.1}>
+   497→            <Card
+   498→              className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300"
+   499→              style={{ background: "var(--pastel-sage-light)" }}
+   500→            >
+   501→              <CardContent className="p-6">
+   502→                <div
+   503→                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+   504→                  style={{ background: "var(--pastel-sage)" }}
+   505→                >
+   506→                  <Server size={20} className="text-white" />
+   507→                </div>
+   508→                <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-2">
+   509→                  Инфраструктура
+   510→                </h3>
+   511→                <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+   512→                  Проектирование и поддержка высоконагруженных инфраструктур.
+   513→                  Опыт работы на стороне бизнеса и аутсорсинга — от построения
+   514→                  систем с нуля до оптимизации существующих.
+   515→                </p>
+   516→              </CardContent>
+   517→            </Card>
+   518→          </FadeInSection>
+   519→
+   520→          <FadeInSection delay={0.2}>
+   521→            <Card
+   522→              className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300"
+   523→              style={{ background: "var(--pastel-rose-light)" }}
+   524→            >
+   525→              <CardContent className="p-6">
+   526→                <div
+   527→                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+   528→                  style={{ background: "var(--pastel-rose)" }}
+   529→                >
+   530→                  <Shield size={20} className="text-white" />
+   531→                </div>
+   532→                <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-2">
+   533→                  Безопасность
+   534→                </h3>
+   535→                <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+   536→                  Сертифицированные СЗИ (Vipnet, S-Terra), работа с Astra Linux.
+   537→                  Организация VPN, межсетевое экранирование, сегментация сетей,
+   538→                  соблюдение требований информационной безопасности.
+   539→                </p>
+   540→              </CardContent>
+   541→            </Card>
+   542→          </FadeInSection>
+   543→
+   544→          <FadeInSection delay={0.3}>
+   545→            <Card
+   546→              className="h-full border-0 shadow-sm hover:shadow-md transition-shadow duration-300"
+   547→              style={{ background: "var(--pastel-lavender-light)" }}
+   548→            >
+   549→              <CardContent className="p-6">
+   550→                <div
+   551→                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+   552→                  style={{ background: "var(--pastel-lavender)" }}
+   553→                >
+   554→                  <Activity size={20} className="text-white" />
+   555→                </div>
+   556→                <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-2">
+   557→                  Observability
+   558→                </h3>
+   559→                <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+   560→                  Полный цикл мониторинга: Zabbix + Grafana, логирование (ELK),
+   561→                  метрики (Prometheus, VictoriaMetrics). Кастомные проверки,
+   562→                  дашборды, алертинг.
+   563→                </p>
+   564→              </CardContent>
+   565→            </Card>
+   566→          </FadeInSection>
+   567→        </div>
+   568→      </div>
+   569→    </section>
+   570→  );
+   571→}
+   572→
+   573→/* ------------------------------------------------------------------ */
+   574→/*  EXPERIENCE                                                         */
+   575→/* ------------------------------------------------------------------ */
+   576→
+   577→function ExperienceSection() {
+   578→  return (
+   579→    <section
+   580→      id="experience"
+   581→      className="py-24 sm:py-32"
+   582→      style={{ background: "var(--pastel-cream)" }}
+   583→    >
+   584→      <div className="mx-auto max-w-6xl px-6">
+   585→        <FadeInSection>
+   586→          <SectionLabel text="Опыт" />
+   587→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   588→            Опыт работы
+   589→          </h2>
+   590→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+   591→            Более 5 лет в сфере IT-инфраструктуры и DevOps
+   592→          </p>
+   593→        </FadeInSection>
+   594→
+   595→        <div className="relative">
+   596→          {/* Timeline line */}
+   597→          <div
+   598→            className="absolute left-[19px] sm:left-1/2 sm:-translate-x-px top-0 bottom-0 w-0.5"
+   599→            style={{ background: "var(--border)" }}
+   600→          />
+   601→
+   602→          <div className="space-y-12">
+   603→            {EXPERIENCES.map((exp, i) => (
+   604→              <FadeInSection key={i} delay={i * 0.15}>
+   605→                <div
+   606→                  className={`relative flex flex-col sm:flex-row gap-6 sm:gap-12 ${
+   607→                    i % 2 === 1 ? "sm:flex-row-reverse" : ""
+   608→                  }`}
+   609→                >
+   610→                  {/* Timeline dot */}
+   611→                  <div
+   612→                    className="absolute left-[11px] sm:left-1/2 sm:-translate-x-1/2 w-[18px] h-[18px] rounded-full border-4 border-[var(--background)] z-10"
+   613→                    style={{ background: exp.color }}
+   614→                  />
+   615→
+   616→                  {/* Content card */}
+   617→                  <div className={`ml-12 sm:ml-0 sm:w-1/2 ${i % 2 === 1 ? "sm:text-left" : ""}`}>
+   618→                    <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+   619→                      {/* Color strip top */}
+   620→                      <div
+   621→                        className="h-1"
+   622→                        style={{ background: exp.color }}
+   623→                      />
+   624→                      <CardContent className="p-6">
+   625→                        <div className="flex items-center gap-3 mb-3">
+   626→                          <div
+   627→                            className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   628→                            style={{ background: exp.colorLight, color: exp.color }}
+   629→                          >
+   630→                            <exp.icon size={18} />
+   631→                          </div>
+   632→                          <div>
+   633→                            <span
+   634→                              className="text-xs font-semibold tracking-wide uppercase"
+   635→                              style={{ color: exp.color }}
+   636→                            >
+   637→                              {exp.period}
+   638→                            </span>
+   639→                            <span
+   640→                              className="text-xs ml-2 px-2 py-0.5 rounded-full"
+   641→                              style={{ background: exp.colorLight, color: exp.color }}
+   642→                            >
+   643→                              {exp.duration}
+   644→                            </span>
+   645→                          </div>
+   646→                        </div>
+   647→
+   648→                        <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg mb-1">
+   649→                          {exp.title}
+   650→                        </h3>
+   651→                        <a
+   652→                          href={exp.companyUrl}
+   653→                          target="_blank"
+   654→                          rel="noopener noreferrer"
+   655→                          className="text-sm font-medium hover:underline mb-3 inline-block"
+   656→                          style={{ color: "var(--muted-foreground)" }}
+   657→                        >
+   658→                          {exp.company}
+   659→                        </a>
+   660→                        <p
+   661→                          className="text-sm leading-relaxed mb-4"
+   662→                          style={{ color: "var(--muted-foreground)" }}
+   663→                        >
+   664→                          {exp.description}
+   665→                        </p>
+   666→
+   667→                        <ul className="space-y-1.5">
+   668→                          {exp.highlights.map((h, hi) => (
+   669→                            <li
+   670→                              key={hi}
+   671→                              className="text-sm flex items-start gap-2"
+   672→                            >
+   673→                              <span
+   674→                                className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+   675→                                style={{ background: exp.color }}
+   676→                              />
+   677→                              <span style={{ color: "var(--muted-foreground)" }}>
+   678→                                {h}
+   679→                              </span>
+   680→                            </li>
+   681→                          ))}
+   682→                        </ul>
+   683→                      </CardContent>
+   684→                    </Card>
+   685→                  </div>
+   686→
+   687→                  {/* Spacer for opposite side */}
+   688→                  <div className="hidden sm:block sm:w-1/2" />
+   689→                </div>
+   690→              </FadeInSection>
+   691→            ))}
+   692→          </div>
+   693→        </div>
+   694→      </div>
+   695→    </section>
+   696→  );
+   697→}
+   698→
+   699→/* ------------------------------------------------------------------ */
+   700→/*  SKILLS                                                             */
+   701→/* ------------------------------------------------------------------ */
+   702→
+   703→function SkillsSection() {
+   704→  return (
+   705→    <section id="skills" className="py-24 sm:py-32">
+   706→      <div className="mx-auto max-w-6xl px-6">
+   707→        <FadeInSection>
+   708→          <SectionLabel text="Навыки" />
+   709→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   710→            Технический стек
+   711→          </h2>
+   712→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+   713→            Ключевые технологии и инструменты, с которыми работаю ежедневно
+   714→          </p>
+   715→        </FadeInSection>
+   716→
+   717→        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+   718→          {SKILL_GROUPS.map((group, i) => (
+   719→            <FadeInSection key={i} delay={i * 0.1}>
+   720→              <Card className="h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group">
+   721→                <CardContent className="p-6">
+   722→                  <div className="flex items-center gap-3 mb-4">
+   723→                    <div
+   724→                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+   725→                      style={{ background: group.colorLight, color: group.color }}
+   726→                    >
+   727→                      <group.icon size={20} />
+   728→                    </div>
+   729→                    <h3 className="font-[family-name:var(--font-heading)] font-semibold text-sm">
+   730→                      {group.title}
+   731→                    </h3>
+   732→                  </div>
+   733→
+   734→                  <div className="flex flex-wrap gap-2">
+   735→                    {group.skills.map((skill, si) => (
+   736→                      <span
+   737→                        key={si}
+   738→                        className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors duration-200"
+   739→                        style={{
+   740→                          background: group.colorLight,
+   741→                          color: "#1a1a1a",
+   742→                        }}
+   743→                      >
+   744→                        {skill}
+   745→                      </span>
+   746→                    ))}
+   747→                  </div>
+   748→                </CardContent>
+   749→              </Card>
+   750→            </FadeInSection>
+   751→          ))}
+   752→        </div>
+   753→      </div>
+   754→    </section>
+   755→  );
+   756→}
+   757→
+   758→/* ------------------------------------------------------------------ */
+   759→/*  EDUCATION                                                          */
+   760→/* ------------------------------------------------------------------ */
+   761→
+   762→function EducationSection() {
+   763→  return (
+   764→    <section
+   765→      id="education"
+   766→      className="py-24 sm:py-32"
+   767→      style={{ background: "var(--pastel-cream)" }}
+   768→    >
+   769→      <div className="mx-auto max-w-6xl px-6">
+   770→        <FadeInSection>
+   771→          <SectionLabel text="Образование" />
+   772→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-12">
+   773→            Образование и сертификаты
+   774→          </h2>
+   775→        </FadeInSection>
+   776→
+   777→        <div className="grid sm:grid-cols-2 gap-5">
+   778→          {EDUCATION.map((edu, i) => (
+   779→            <FadeInSection key={i} delay={i * 0.1}>
+   780→              <Card
+   781→                className="h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden"
+   782→              >
+   783→                {/* Color accent on left */}
+   784→                <div className="flex h-full">
+   785→                  <div
+   786→                    className="w-1.5 shrink-0"
+   787→                    style={{ background: edu.color }}
+   788→                  />
+   789→                  <CardContent className="p-6 flex-1">
+   790→                    <div className="flex items-start justify-between gap-4">
+   791→                      <div className="flex items-start gap-3">
+   792→                        <div
+   793→                          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110"
+   794→                          style={{
+   795→                            background: edu.colorLight,
+   796→                            color: edu.color,
+   797→                          }}
+   798→                        >
+   799→                          <Award size={20} />
+   800→                        </div>
+   801→                        <div>
+   802→                          <span
+   803→                            className="text-xs font-semibold tracking-wide"
+   804→                            style={{ color: edu.color }}
+   805→                          >
+   806→                            {edu.year}
+   807→                          </span>
+   808→                          <h3 className="font-[family-name:var(--font-heading)] font-semibold mt-1">
+   809→                            {edu.title}
+   810→                          </h3>
+   811→                          <p
+   812→                            className="text-sm mt-1"
+   813→                            style={{ color: "var(--muted-foreground)" }}
+   814→                          >
+   815→                            {edu.subtitle}
+   816→                          </p>
+   817→                        </div>
+   818→                      </div>
+   819→                    </div>
+   820→                  </CardContent>
+   821→                </div>
+   822→              </Card>
+   823→            </FadeInSection>
+   824→          ))}
+   825→        </div>
+   826→      </div>
+   827→    </section>
+   828→  );
+   829→}
+   830→
+   831→/* ------------------------------------------------------------------ */
+   832→/*  CONTACT                                                            */
+   833→/* ------------------------------------------------------------------ */
+   834→
+   835→function ContactSection() {
+   836→  return (
+   837→    <section id="contact" className="py-24 sm:py-32">
+   838→      <div className="mx-auto max-w-6xl px-6">
+   839→        <FadeInSection>
+   840→          <SectionLabel text="Контакт" />
+   841→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   842→            Связаться со мной
+   843→          </h2>
+   844→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+   845→            Открыт к предложениям и интересным проектам
+   846→          </p>
+   847→        </FadeInSection>
+   848→
+   849→        <FadeInSection delay={0.15}>
+   850→          <Card className="max-w-2xl mx-auto border-0 shadow-md overflow-hidden">
+   851→            <div className="h-1.5" style={{ background: "linear-gradient(90deg, var(--pastel-sage), var(--pastel-lavender), var(--pastel-rose))" }} />
+   852→            <CardContent className="p-8 sm:p-10">
+   853→              <div className="space-y-6">
+   854→                {/* Phone */}
+   855→                <a
+   856→                  href="tel:+79247655602"
+   857→                  className="flex items-center gap-4 p-4 rounded-xl transition-colors duration-200 hover:bg-[var(--secondary)] group"
+   858→                >
+   859→                  <div
+   860→                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+   861→                    style={{
+   862→                      background: "var(--pastel-sage-light)",
+   863→                      color: "var(--pastel-sage)",
+   864→                    }}
+   865→                  >
+   866→                    <Phone size={22} />
+   867→                  </div>
+   868→                  <div>
+   869→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>
+   870→                      Телефон
+   871→                    </p>
+   872→                    <p className="font-semibold">+7 (924) 765-56-02</p>
+   873→                  </div>
+   874→                </a>
+   875→
+   876→                <Separator className="bg-[var(--border)]" />
+   877→
+   878→                {/* Email */}
+   879→                <a
+   880→                  href="mailto:19970710ko@gmail.com"
+   881→                  className="flex items-center gap-4 p-4 rounded-xl transition-colors duration-200 hover:bg-[var(--secondary)] group"
+   882→                >
+   883→                  <div
+   884→                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+   885→                    style={{
+   886→                      background: "var(--pastel-rose-light)",
+   887→                      color: "var(--pastel-rose)",
+   888→                    }}
+   889→                  >
+   890→                    <Mail size={22} />
+   891→                  </div>
+   892→                  <div>
+   893→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>
+   894→                      Email
+   895→                    </p>
+   896→                    <p className="font-semibold">19970710ko@gmail.com</p>
+   897→                  </div>
+   898→                </a>
+   899→
+   900→                <Separator className="bg-[var(--border)]" />
+   901→
+   902→                {/* Position */}
+   903→                <div className="flex items-center gap-4 p-4 rounded-xl">
+   904→                  <div
+   905→                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+   906→                    style={{
+   907→                      background: "var(--pastel-lavender-light)",
+   908→                      color: "var(--pastel-lavender)",
+   909→                    }}
+   910→                  >
+   911→                    <Briefcase size={22} />
+   912→                  </div>
+   913→                  <div>
+   914→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>
+   915→                      Позиция
+   916→                    </p>
+   917→                    <p className="font-semibold">SRE / Observability / Network-инженер</p>
+   918→                  </div>
+   919→                </div>
+   920→
+   921→                <Separator className="bg-[var(--border)]" />
+   922→
+   923→                {/* Resume link */}
+   924→                <div className="flex items-center gap-4 p-4 rounded-xl">
+   925→                  <div
+   926→                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+   927→                    style={{
+   928→                      background: "#f5ede3",
+   929→                      color: "var(--pastel-warm)",
+   930→                    }}
+   931→                  >
+   932→                    <FileText size={22} />
+   933→                  </div>
+   934→                  <div>
+   935→                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted-foreground)" }}>
+   936→                      Резюме
+   937→                    </p>
+   938→                    <p className="font-semibold text-sm" style={{ color: "var(--muted-foreground)" }}>
+   939→                      PDF-версия по запросу
+   940→                    </p>
+   941→                  </div>
+   942→                </div>
+   943→              </div>
+   944→            </CardContent>
+   945→          </Card>
+   946→        </FadeInSection>
+   947→      </div>
+   948→    </section>
+   949→  );
+   950→}
+   951→
+   952→/* ------------------------------------------------------------------ */
+   953→/*  PROJECTS                                                           */
+   954→/* ------------------------------------------------------------------ */
+   955→
+   956→function ProjectsSection() {
+   957→  return (
+   958→    <section
+   959→      id="projects"
+   960→      className="py-24 sm:py-32"
+   961→      style={{ background: "var(--pastel-cream)" }}
+   962→    >
+   963→      <div className="mx-auto max-w-6xl px-6">
+   964→        <FadeInSection>
+   965→          <SectionLabel text="Кейсы" />
+   966→          <h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-bold mb-4">
+   967→            Ключевые проекты
+   968→          </h2>
+   969→          <p className="mb-12" style={{ color: "var(--muted-foreground)" }}>
+   970→            Проекты, которыми особенно горжусь
+   971→          </p>
+   972→        </FadeInSection>
+   973→
+   974→        <div className="grid md:grid-cols-2 gap-5">
+   975→          {PROJECTS.map((project, i) => (
+   976→            <FadeInSection key={i} delay={i * 0.1}>
+   977→              <Card
+   978→                className={`h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden ${
+   979→                  i === PROJECTS.length - 1 && PROJECTS.length % 2 === 1 ? "md:col-span-2" : ""
+   980→                }`}
+   981→              >
+   982→                <div className="flex h-full">
+   983→                  <div
+   984→                    className="w-1.5 shrink-0"
+   985→                    style={{ background: project.color }}
+   986→                  />
+   987→                  <CardContent className="p-6 flex-1">
+   988→                    <div className="flex items-start gap-3">
+   989→                      <div
+   990→                        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110"
+   991→                        style={{
+   992→                          background: project.colorLight,
+   993→                          color: project.color,
+   994→                        }}
+   995→                      >
+   996→                        <Rocket size={20} />
+   997→                      </div>
+   998→                      <div className="flex-1">
+   999→                        <h3 className="font-[family-name:var(--font-heading)] font-semibold">
+  1000→                          {project.title}
+  1001→                        </h3>
+  1002→                        <p
+  1003→                          className="text-sm mt-2 leading-relaxed"
+  1004→                          style={{ color: "var(--muted-foreground)" }}
+  1005→                        >
+  1006→                          {project.description}
+  1007→                        </p>
+  1008→                        {"links" in project && (
+  1009→                          <div className="flex gap-3 mt-3">
+  1010→                            {project.links.map((link, li) => (
+  1011→                              <a
+  1012→                                key={li}
+  1013→                                href={link.url}
+  1014→                                target="_blank"
+  1015→                                rel="noopener noreferrer"
+  1016→                                className="inline-flex items-center gap-1 text-xs font-medium hover:underline transition-colors"
+  1017→                                style={{ color: project.color }}
+  1018→                              >
+  1019→                                <ExternalLink size={12} />
+  1020→                                {link.label}
+  1021→                              </a>
+  1022→                            ))}
+  1023→                          </div>
+  1024→                        )}
+  1025→                      </div>
+  1026→                    </div>
+  1027→                  </CardContent>
+  1028→                </div>
+  1029→              </Card>
+  1030→            </FadeInSection>
+  1031→          ))}
+  1032→        </div>
+  1033→      </div>
+  1034→    </section>
+  1035→  );
+  1036→}
+  1037→
+  1038→/* ------------------------------------------------------------------ */
+  1039→/*  FOOTER                                                             */
+  1040→/* ------------------------------------------------------------------ */
+  1041→
+  1042→function Footer() {
+  1043→  return (
+  1044→    <footer
+  1045→      className="py-8 border-t border-[var(--border)]"
+  1046→      style={{ background: "var(--pastel-cream)" }}
+  1047→    >
+  1048→      <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+  1049→        <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+  1050→          © {new Date().getFullYear()} Иванов Никита Станиславович
+  1051→        </p>
+  1052→        <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+  1053→          SRE / Observability / Network-инженер
+  1054→        </p>
+  1055→      </div>
+  1056→    </footer>
+  1057→  );
+  1058→}
+  1059→
+  1060→/* ------------------------------------------------------------------ */
+  1061→/*  SCROLL-TO-TOP                                                      */
+  1062→/* ------------------------------------------------------------------ */
+  1063→
+  1064→function ScrollToTop() {
+  1065→  const [visible, setVisible] = useState(false);
+  1066→
+  1067→  useEffect(() => {
+  1068→    const onScroll = () => setVisible(window.scrollY > 600);
+  1069→    window.addEventListener("scroll", onScroll, { passive: true });
+  1070→    return () => window.removeEventListener("scroll", onScroll);
+  1071→  }, []);
+  1072→
+  1073→  return (
+  1074→    <AnimatePresence>
+  1075→      {visible && (
+  1076→        <motion.button
+  1077→          initial={{ opacity: 0, scale: 0.8 }}
+  1078→          animate={{ opacity: 1, scale: 1 }}
+  1079→          exit={{ opacity: 0, scale: 0.8 }}
+  1080→          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+  1081→          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-300"
+  1082→          style={{ background: "var(--pastel-sage)", color: "#fff" }}
+  1083→          aria-label="Наверх"
+  1084→        >
+  1085→          <ArrowUp size={18} />
+  1086→        </motion.button>
+  1087→      )}
+  1088→    </AnimatePresence>
+  1089→  );
+  1090→}
+  1091→
+  1092→/* ------------------------------------------------------------------ */
+  1093→/*  SECTION LABEL                                                      */
+  1094→/* ------------------------------------------------------------------ */
+  1095→
+  1096→function SectionLabel({ text }: { text: string }) {
+  1097→  return (
+  1098→    <span
+  1099→      className="inline-block text-xs font-semibold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-full"
+  1100→      style={{
+  1101→        background: "var(--pastel-sage-light)",
+  1102→        color: "#4a6b52",
+  1103→      }}
+  1104→    >
+  1105→      {text}
+  1106→    </span>
+  1107→  );
+  1108→}
+  1109→
+  1110→/* ------------------------------------------------------------------ */
+  1111→/*  PAGE                                                               */
+  1112→/* ------------------------------------------------------------------ */
+  1113→
+  1114→export default function Home() {
+  1115→  return (
+  1116→    <TooltipProvider>
+  1117→      <div className="min-h-screen flex flex-col bg-background">
+  1118→        <Navigation />
+  1119→        <main className="flex-1">
+  1120→          <HeroSection />
+  1121→          <AboutSection />
+  1122→          <ExperienceSection />
+  1123→          <SkillsSection />
+  1124→          <EducationSection />
+  1125→          <ContactSection />
+  1126→          <ProjectsSection />
+  1127→        </main>
+  1128→        <Footer />
+  1129→        <ScrollToTop />
+  1130→      </div>
+  1131→    </TooltipProvider>
+  1132→  );
+  1133→}
+  1134→

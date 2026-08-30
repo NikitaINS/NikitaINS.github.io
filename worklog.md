@@ -21,3 +21,22 @@ Stage Summary:
 - Montserrat + Inter fonts with Cyrillic support
 - All resume data accurately represented
 - Verified working in browser with smooth interactions
+
+---
+Task ID: 3
+Agent: main
+Task: Add Russian/English language switching to portfolio site
+
+Work Log:
+- Created /src/lib/i18n.ts with full translations dictionary (ru + en) covering all sections
+- Created /src/lib/useLang.tsx with LangProvider context and useLang hook
+- Refactored page.tsx to use translations instead of hardcoded Russian text
+- Added Languages icon toggle button in navigation bar (RU ↔ EN)
+- Copied user's uploaded files (layout.tsx, logo.svg, package.json)
+- Verified both languages switch correctly in browser with no console errors
+
+Stage Summary:
+- Language toggle button in nav shows "EN" (when in Russian) / "RU" (when in English)
+- All text on the page switches instantly: nav, hero, about, experience, skills, education, contact, projects, footer
+- Technical terms and company names remain unchanged between languages
+- No errors in console, lint passes clean
