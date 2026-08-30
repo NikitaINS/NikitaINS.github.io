@@ -307,7 +307,7 @@ const en: Translations = {
 
   /* HERO */
   heroBadge: "SRE / Observability / Network Engineer",
-  heroName: "Nikita Ivanov\nStanislavovich",
+  heroName: "Nikita Ivanov",
   heroDescription:
     "SRE / Observability / Network engineer with 5+ years of experience. Reliability, automation and continuous delivery are my top priorities.",
   heroBadgeFullTime: "Full-time",
