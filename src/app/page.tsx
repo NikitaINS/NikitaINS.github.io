@@ -135,7 +135,7 @@ function Navigation() {
           className="font-[family-name:var(--font-heading)] font-bold text-lg tracking-tight flex items-center gap-2"
           style={{ color: "var(--pastel-sage)" }}
         >
-          <img src="/logo.svg" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
+          <img src="/logo.webp" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
           {t.navLogo}
         </a>
 
