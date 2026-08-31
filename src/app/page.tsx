@@ -190,7 +190,13 @@ function Navigation() {
                 <li key={item.href}>
                   <a
                     href={item.href}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setMobileOpen(false);
+                      setTimeout(() => {
+                        document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" });
+                      }, 150);
+                    }}
                     className="block py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                   >
                     {item.label}
